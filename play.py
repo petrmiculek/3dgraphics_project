@@ -13,19 +13,27 @@ def generate_terrain(crater_center = (50, 50),
         for i in range(100):
             for j in range(100):
                 ground[i, j] += np.sin(i / f) * np.sin(j / f) * f /100
+
     # gaussian crater
     for i in range(100):
         for j in range(100):
             dist = np.sqrt((i - crater_center[0]) ** 2 + (j - crater_center[1]) ** 2)
-            if dist < crater_radius:
-                ground[i, j] += crater_height * np.exp(-dist / crater_radius)
+            ground[i, j] += crater_height * np.exp(-dist / crater_radius)
     
     # hole in crater
     for i in range(100):
         for j in range(100):
             dist = np.sqrt((i - crater_center[0]) ** 2 + (j - crater_center[1]) ** 2)
+        
+            # gradual transition to crater hole
+            # if dist < hole_radius + crater_radius / 2:
+            #     ground[i, j] -= np.exp(-dist / crater_radius) * crater_height / 8
+            # to be finished
+
             if dist < hole_radius:
                 ground[i, j] = 0
+
+    return ground
     
 def plot_terrain(ground):
     # plot crater 3d surface
