@@ -1,0 +1,39 @@
+lab5-notes.txt
+
+v = vertex position
+vn = normal
+vt = texture coordinate
+
+color interpolation
+- linear: implemented in `filter`
+
+opengl interpolate function - put flowers on grass
+
+
+
+---
+
+parsimoniously
+Pertinence
+from a grazing angle
+
+
+---
+
+project:
+
+give a team members list
+
+'scene can be populated with any number of buildings,
+creatures and plants'
+
+there will be reference models
+- 
+
+create terrain
+do illumination
+animate lava
+put moving characters in the scene
+
+next week: last practical, then doing the project in-lab
+
