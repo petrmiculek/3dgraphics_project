@@ -52,14 +52,18 @@ class TexturedMesh(Textured):
 def main():
     """ create a window, add scene objects, then run rendering loop """
     viewer = Viewer()
-    shader = Shader("texture_old.vert", "texture_old.frag")
+    shader = Shader("texture.vert", "texture.frag")
+    shader_grass = Shader("texture_old.vert", "texture_old.frag")
+
     light_dir = (0, -1, 0)
     viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader, light_dir=light_dir)])
 
     if len(sys.argv) != 2:
         print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'
               ' format supported by assimp.' % (sys.argv[0],))
-        viewer.add(TexturedPlane(shader, "grass.png"))
+        viewer.add(TexturedPlane(shader_grass, "grass.png"))
+        # viewer.add(*load("grass.png", shader_grass, light_dir=light_dir))
+        viewer.add(*load("bunny.obj", shader, light_dir=light_dir))
         # def load(file, shader, tex_file=None, **params):
         # cube = load('cube.obj', shader, tex_file='cube.mtl')
         # viewer.add(cube)

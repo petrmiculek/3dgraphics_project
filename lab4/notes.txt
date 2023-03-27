@@ -1,0 +1,19 @@
+notes.txt
+
+materials file
+
+Ka, Kd, Ks = 
+illum = type of light - directional in our case
+Ns = shininess - exponent of the cosine
+
+materials automatically loaded with the object
+
+name of materials on the gpu
+
+-
+since multiplying the position of the vertex by the model matrix
+is an affine transformation, the homogeneous coordinate stays the same
+
+otherwise, we would have to divide by the homogeneous coordinate to normalize
+
+from model to camera space, you need a special matrix for vectors that should keep the position
