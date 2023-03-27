@@ -1,0 +1,8 @@
+Plan:
+
+volcano model values: done
+volanco mesh out of values:
+create a texture to the mesh:
+skybox: 
+lava:
+insert model into the scene:
