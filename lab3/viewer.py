@@ -50,62 +50,7 @@ class Cylinder(Node):
 
 
 # -------------- main program and scene setup --------------------------------
-'''
-def main():
-    """ create a window, add scene objects, then run rendering loop """
-    viewer = Viewer()
 
-    # default color shader
-    shader = Shader("color.vert", "color.frag")
-
-    # place instances of our basic objects
-    viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader)])
-    if len(sys.argv) < 2:
-        scaling = 0.2
-        t1 = translate(x=+2 * scaling) @ scale(scaling)
-        viewer.add(Axis(shader))
-        viewer.add(Node(children=[Cylinder(shader)], transform=t1))
-        viewer.add(Node(children=[Triangle(shader)], transform=translate(x=-1 * scaling) @ scale(scaling)))
-        print('Usage:\n\t%s [3dfile]*\n\n3dfile\t\t the filename of a model in'
-              ' format supported by assimp.' % (sys.argv[0],))
-
-    # start rendering loop
-    viewer.run()
-'''
-
-'''
-def main():
-        viewer = Viewer()
-        shader = Shader("color.vert", "color.frag")
-        scaling = 0.2
-        t_arm = translate(y=+2 * scaling) @ scale(x=0.3, y=1, z=0.3) # @ scale(scaling)
-        t_forearm = translate(y=+3 * scaling) @ scale(x=0.5, y=1, z=0.5) # @ scale(scaling)
-
-        # ---- let's make our shapes ---------------------------------------
-        # think about it: we can re-use the same cylinder instance!
-        cylinder = Cylinder(shader)
-
-        # make a thin cylinder
-        forearm_shape = Node(transform=t_forearm)
-        forearm_shape.add(cylinder)                 # shape of forearm
-        
-        # make a thin cylinder
-        arm_shape = Node(children=[forearm_shape], transform=t_arm)
-        arm_shape.add(cylinder)                     # shape of arm
-        
-        # make a flat cylinder
-        base_shape = Node(children=[arm_shape], transform=scale(scaling))
-        base_shape.add(cylinder)                    # shape of robot base
-
-        viewer.add(base_shape)
-
-        axis = Axis(shader)
-        # transform_arm = Node(transform=rotate((...), phi1))
-        # transform_arm.add(arm_shape, transform_forearm)
-        # transform_arm.add(axis)        
-        
-        viewer.run()
-'''
 def main():
     viewer = Viewer()
     shader = Shader("color.vert", "color.frag")
@@ -152,6 +97,9 @@ def main():
     viewer.add(axis)
     
     viewer.run()
+
+    # this still needs animation from:
+    # https://franco.gitlabpages.inria.fr/3dgraphics/practical3.html#optional-exercise-keyboard-control
 
 if __name__ == '__main__':
     main()                     # main function keeps variables locally scoped
