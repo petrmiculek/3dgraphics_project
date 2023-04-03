@@ -45,3 +45,30 @@ class Textured:
             GL.glBindTexture(texture.type, texture.glid)
             uniforms[name] = index
         self.drawable.draw(primitives=primitives, **uniforms)
+
+
+class Skybox():
+    ''' Draw the skybox class.
+        Source: https://learnopengl.com/Advanced-OpenGL/Cubemaps
+        
+    '''
+    def __init__(self, tex_files: list, tex_type=GL.GL_TEXTURE_CUBE_MAP):
+        self.glid = GL.glGenTextures(1)
+        self.bindTex = GL.glBindTexture(tex_type, self.glid)
+        self.type = tex_type
+        try:
+            for i in range(0, 6):
+                # imports image as a numpy array in exactly right format
+                tex = Image.open(tex_files(i)).convert('RGBA')
+                GL.glBindTexture(tex_type, self.glid)
+                GL.glTexImage2D(GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL.GL_RGB, tex.width, tex.height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, tex.tobytes())
+            
+            GL.glTexParameterf(tex_type, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE) 
+            GL.glTexParameterf(tex_type, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
+            GL.glTexParameterf(tex_type, GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE) 
+            GL.glTexParameterf(tex_type, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST) 
+            GL.glTexParameterf(tex_type, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST) 
+
+        except FileNotFoundError:
+            print("ERROR: unable to load skybox texture file %s" % tex_files(i))
+
