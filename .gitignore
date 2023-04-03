@@ -4,3 +4,4 @@ lab3/__pycache__
 lab4/__pycache__
 *.pyc
 */*.pyc
+venv
