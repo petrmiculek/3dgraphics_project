@@ -5,7 +5,7 @@ import OpenGL.GL as GL              # standard Python OpenGL wrapper
 import glfw                         # lean window system wrapper for OpenGL
 import numpy as np                  # all matrix manipulations & OpenGL args
 from core import Shader, Viewer, Mesh, load
-from texture import Texture, Textured
+from texture import Texture, Textured, Skybox
 
 
 # -------------- Example textured plane class ---------------------------------
@@ -53,6 +53,7 @@ def main():
     """ create a window, add scene objects, then run rendering loop """
     viewer = Viewer()
     shader = Shader("texture_old.vert", "texture_old.frag")
+    #shader = Shader("skybox.vert", "skybox.frag")
     light_dir = (0, -1, 0)
     viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader, light_dir=light_dir)])
 
@@ -63,6 +64,9 @@ def main():
         # def load(file, shader, tex_file=None, **params):
         # cube = load('cube.obj', shader, tex_file='cube.mtl')
         # viewer.add(cube)
+
+    skyboxShader = Shader("skybox.vert", "skybox.frag")
+    viewer.add(Skybox())
 
     # start rendering loop
     viewer.run()
