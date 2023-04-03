@@ -3,6 +3,21 @@ Plan:
 volcano model values: done
 volanco mesh out of values:
 create a texture to the mesh:
+create normals as a derivative of the terrain at each position
+grid -1, ... +1
+height function:
+    f(x, z) -> height scalar
+    n(x, z) -> normal vector
+        = (df/dx, 1, df/dz)
+        approximate derivative through x + eps, ...
+        normalize - don't forget
+
+you can also do this normal computation in the vertex shader
+so you can animate like this through moving the vertices
+and computing their normals in the vertex shader
+
+np gradient
+
 skybox: 
 lava:
 insert model into the scene:
