@@ -1,5 +1,6 @@
 import OpenGL.GL as GL              # standard Python OpenGL wrapper
 from PIL import Image               # load texture maps
+import numpy as np
 
 
 # -------------- OpenGL Texture Wrapper ---------------------------------------
@@ -57,12 +58,13 @@ class Skybox:
         self.bindTex = GL.glBindTexture(tex_type, self.glid)
         self.type = tex_type
         try:
-            tex = Image.open(tex_files).convert('RGBA')
+            tex = Image.open(tex_files).convert('RGB')
+            texdata = np.fromstring(tex.tostring(), np.uint8)
             for i in range(0, 6): #len(tex_files)
                 # imports image as a numpy array in exactly right format
                 # tex here and make it loop through list in tex_files
                 GL.glBindTexture(tex_type, self.glid)
-                GL.glTexImage2D(GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL.GL_RGB, tex.width, tex.height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, tex.tobytes())
+                GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB, tex.width, tex.height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, texdata)
             
             GL.glTexParameterf(tex_type, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE) 
             GL.glTexParameterf(tex_type, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
@@ -77,7 +79,7 @@ class Skybox:
         GL.disable(GL.GL_DEPTH_TEST)
         GL.glDepthMask(False)
 
-        
+
 
         GL.glBindTexture(tex_type, 0)
         GL.glDrawArrays(primitives, 0, 36)
