@@ -101,11 +101,56 @@ if __name__ == "__main__":
     # set manual seed - always makes the same crater
     np.random.seed(0)
 
-    # plot crater
+    # plot craterop
     ground = generate_terrain(crater_center=(60, 80), crater_height=150)
     plot_terrain(ground)
 
     # save crater .npy
-    np.save('crater_terrain_grid.npy', ground)
+    np.save('assets/crater_terrain_grid.npy', ground)
+
+
+    # compute normals
+    grad = np.gradient(ground)
+    grad_x, grad_y = grad
+    # normals = np.cross(grad_x, grad_y)
+    plt.imshow(grad_x)
+    plt.title('grad_x')
+    plt.show()
+    plt.imshow(grad_y)
+    plt.title('grad_y')
+    plt.show()
+
+
+    # convert crater to a mesh for openGL
+    vertices = []
+    indices = []
+    # normals = []
+
+    for x in range(ground.shape[0] - 1):
+        for y in range(ground.shape[1] - 1):
+            # x is left to right
+            # y is up
+            # z is forward
+            v1 = np.array([x, ground[x, y], y])
+            v2 = np.array([x + 1, ground[x + 1, y], y])
+            v3 = np.array([x, ground[x, y + 1], y + 1])
+            v4 = np.array([x + 1, ground[x + 1, y + 1], y + 1])
+
+            vertices.extend([v1, v2, v3, v4])
+
+            # indices
+            i1 = y * ground.shape[0] + x
+            i2 = y * ground.shape[0] + x + 1
+            i3 = (y + 1) * ground.shape[0] + x
+            i4 = (y + 1) * ground.shape[0] + x + 1
+
+            indices.extend([i1, i2, i3, i2, i4, i3])
+
+            # normals - how many per vertex? 1
+            n1 = np.cross(v2 - v1, v3 - v1)
+            n2 = np.cross(v4 - v2, v3 - v2)
+
+
+
 
 
