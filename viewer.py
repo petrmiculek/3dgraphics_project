@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import sys
 from itertools import cycle
-import OpenGL.GL as GL              # standard Python OpenGL wrapper
-import glfw                         # lean window system wrapper for OpenGL
-import numpy as np                  # all matrix manipulations & OpenGL args
+import OpenGL.GL as GL  # standard Python OpenGL wrapper
+import glfw  # lean window system wrapper for OpenGL
+import numpy as np  # all matrix manipulations & OpenGL args
 from core import Shader, Viewer, Mesh, load
 from texture import Texture, Textured, Skybox
 
@@ -11,6 +11,7 @@ from texture import Texture, Textured, Skybox
 # -------------- Example textured plane class ---------------------------------
 class TexturedPlane(Textured):
     """ Simple first textured object """
+
     def __init__(self, shader, tex_file):
         # prepare texture modes cycling variables for interactive toggling
         self.wraps = cycle([GL.GL_REPEAT, GL.GL_MIRRORED_REPEAT,
@@ -39,14 +40,16 @@ class TexturedPlane(Textured):
             texture = Texture(self.file, self.wrap, *self.filter)
             self.textures.update(diffuse_map=texture)
 
+
 # -------------- Example textured mesh class ----------------------------------
 # not done yet
 # -------------- main program and scene setup --------------------------------
 def main():
     """ create a window, add scene objects, then run rendering loop """
     viewer = Viewer()
-    shader = Shader("texture_old.vert", "texture_old.frag")
-    #shader = Shader("skybox.vert", "skybox.frag")
+    shader = Shader("shaders/texture.vert", "shaders/texture.frag")
+    shader_grass = Shader("shaders/texture_old.vert", "shaders/texture_old.frag")
+    shader_skybox = Shader("shaders/skybox.vert", "shaders/skybox.frag")
     light_dir = (0, -1, 0)
     viewer.add(*[mesh for file in sys.argv[1:] for mesh in load(file, shader, light_dir=light_dir)])
 
@@ -60,12 +63,11 @@ def main():
         # cube = load('cube.obj', shader, tex_file='cube.mtl')
         # viewer.add(cube)
 
-    skyboxShader = Shader("skybox.vert", "skybox.frag")
-    viewer.add(Skybox())
+    # viewer.add(Skybox())
 
     # start rendering loop
     viewer.run()
 
 
 if __name__ == '__main__':
-    main()                     # main function keeps variables locally scoped
+    main()  # main function keeps variables locally scoped
