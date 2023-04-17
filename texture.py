@@ -47,7 +47,7 @@ class Textured:
         self.drawable.draw(primitives=primitives, **uniforms)
 
 
-class Skybox():
+class Skybox:
     ''' Draw the skybox class.
         Source: https://learnopengl.com/Advanced-OpenGL/Cubemaps
         
@@ -57,11 +57,11 @@ class Skybox():
         self.bindTex = GL.glBindTexture(tex_type, self.glid)
         self.type = tex_type
         try:
-            for i in range(0, 6):
+            # for i in range(0, len(tex_files)):
                 # imports image as a numpy array in exactly right format
-                tex = Image.open(tex_files(i)).convert('RGBA')
-                GL.glBindTexture(tex_type, self.glid)
-                GL.glTexImage2D(GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL.GL_RGB, tex.width, tex.height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, tex.tobytes())
+            tex = Image.open(tex_files(i)).convert('RGBA')
+            GL.glBindTexture(tex_type, self.glid)
+            GL.glTexImage2D(GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL.GL_RGB, tex.width, tex.height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, tex.tobytes())
             
             GL.glTexParameterf(tex_type, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE) 
             GL.glTexParameterf(tex_type, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
