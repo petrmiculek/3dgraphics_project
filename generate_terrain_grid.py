@@ -111,26 +111,32 @@ if __name__ == "__main__":
 
     # compute normals
     grad = np.gradient(ground)
-    grad_x, grad_y = grad
+    grad_x, grad_z = grad
     # normals = np.cross(grad_x, grad_y)
     plt.imshow(grad_x)
     plt.title('grad_x')
     plt.show()
-    plt.imshow(grad_y)
+    plt.imshow(grad_z)
     plt.title('grad_y')
     plt.show()
 
+    # normals
+    for x in range(ground.shape[0] - 1):
+        for y in range(ground.shape[1] - 1):
+            pass
 
     # convert crater to a mesh for openGL
     vertices = []
     indices = []
-    # normals = []
+    normals = []
 
     for x in range(ground.shape[0] - 1):
         for y in range(ground.shape[1] - 1):
             # x is left to right
             # y is up
             # z is forward
+
+            ''' Vertices '''
             v1 = np.array([x, ground[x, y], y])
             v2 = np.array([x + 1, ground[x + 1, y], y])
             v3 = np.array([x, ground[x, y + 1], y + 1])
@@ -138,18 +144,32 @@ if __name__ == "__main__":
 
             vertices.extend([v1, v2, v3, v4])
 
-            # indices
+            ''' Indices '''
             i1 = y * ground.shape[0] + x
             i2 = y * ground.shape[0] + x + 1
             i3 = (y + 1) * ground.shape[0] + x
             i4 = (y + 1) * ground.shape[0] + x + 1
 
-            indices.extend([i1, i2, i3, i2, i4, i3])
+            # the vertices look like this:
+            # 1---2
+            # | / |
+            # 3---4
 
-            # normals - how many per vertex? 1
+            # triangle vertices go counter-clockwise
+            # first triangle is top-left 1-2-3
+            # second one is bottom-right 2-4-3
+
+            #
+            indices.extend([i1, i2, i3] + [i2, i4, i3])
+
+            ''' Normals '''
+            # how many per vertex? 1
             n1 = np.cross(v2 - v1, v3 - v1)
             n2 = np.cross(v4 - v2, v3 - v2)
 
+            # y-component of the normal is 1 - but the specific value is not important, as it will get normalized
+            # x-component = grad_x[x, y]
+            # z-component = grad_y[x, y]
 
 
 

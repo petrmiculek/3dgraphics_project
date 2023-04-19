@@ -3,12 +3,12 @@
 Python OpenGL practical application.
 """
 
-import sys                          # for system arguments
+import sys  # for system arguments
 
 # External, non built-in modules
-import OpenGL.GL as GL              # standard Python OpenGL wrapper
-import numpy as np                  # all matrix manipulations & OpenGL args
-import glfw                         # lean window system wrapper for OpenGL
+import OpenGL.GL as GL  # standard Python OpenGL wrapper
+import numpy as np  # all matrix manipulations & OpenGL args
+import glfw  # lean window system wrapper for OpenGL
 
 from core import Shader, Mesh, Viewer, Node, load
 from transform import translate, identity, rotate, scale
@@ -16,6 +16,7 @@ from transform import translate, identity, rotate, scale
 
 class Axis(Mesh):
     """ Axis object useful for debugging coordinate frames """
+
     def __init__(self, shader):
         pos = ((0, 0, 0), (1, 0, 0), (0, 0, 0), (0, 1, 0), (0, 0, 0), (0, 0, 1))
         col = ((1, 0, 0), (1, 0, 0), (0, 1, 0), (0, 1, 0), (0, 0, 1), (0, 0, 1))
@@ -27,6 +28,7 @@ class Axis(Mesh):
 
 class Triangle(Mesh):
     """Hello triangle object"""
+
     def __init__(self, shader):
         position = np.array(((0, .5, 0), (-.5, -.5, 0), (.5, -.5, 0)), 'f')
         color = np.array(((1, 0, 0), (0, 1, 0), (0, 0, 1)), 'f')
@@ -44,6 +46,7 @@ class Triangle(Mesh):
 
 class Cylinder(Node):
     """ Very simple cylinder based on provided load function """
+
     def __init__(self, shader):
         super().__init__()
         self.add(*load('cylinder.obj', shader))  # just load cylinder from file
@@ -62,44 +65,44 @@ def main():
     # base_shape = ...
     # arm_shape = ...
     # forearm_shape = ...
-        # ---- let's make our shapes ---------------------------------------
+    # ---- let's make our shapes ---------------------------------------
     # think about it: we can re-use the same cylinder instance!
     cylinder = Cylinder(shader)
 
     # make a thin cylinder
     forearm_shape = Node(transform=t_forearm)
-    forearm_shape.add(cylinder)                 # shape of forearm
-    
+    forearm_shape.add(cylinder)  # shape of forearm
+
     # make a thin cylinder
     arm_shape = Node(children=[forearm_shape], transform=t_arm)
-    arm_shape.add(cylinder)                     # shape of arm
-    
+    arm_shape.add(cylinder)  # shape of arm
+
     # make a flat cylinder
     base_shape = Node(children=[arm_shape], transform=scale(scaling))
-    base_shape.add(cylinder)                    # shape of robot base
-
+    base_shape.add(cylinder)  # shape of robot base
 
     # ---- construct our robot arm hierarchy ---------------------------
-    theta = 45.0        # base horizontal rotation angle
-    phi1 = 45.0         # arm angle
-    phi2 = 20.0         # forearm angle
+    theta = 45.0  # base horizontal rotation angle
+    phi1 = 45.0  # arm angle
+    phi2 = 20.0  # forearm angle
     axis = Axis(shader)
-    transform_forearm = Node(transform=translate(x=0.25) @ rotate(((0, 0, 1)), phi2)) # 
+    transform_forearm = Node(transform=translate(x=0.25) @ rotate((0, 0, 1), phi2))  #
     transform_forearm.add(forearm_shape)
 
-    transform_arm = Node(transform=rotate(((0, 0, 1)), phi1))  # 
+    transform_arm = Node(transform=rotate((0, 0, 1), phi1))  #
     transform_arm.add(arm_shape, transform_forearm)
 
-    transform_base = Node(transform=rotate(((0, 1, 0)), theta))
+    transform_base = Node(transform=rotate((0, 1, 0), theta))
     transform_base.add(base_shape, transform_arm)
 
     viewer.add(transform_base)
     viewer.add(axis)
-    
+
     viewer.run()
 
     # this still needs animation from:
     # https://franco.gitlabpages.inria.fr/3dgraphics/practical3.html#optional-exercise-keyboard-control
 
+
 if __name__ == '__main__':
-    main()                     # main function keeps variables locally scoped
+    main()  # main function keeps variables locally scoped
