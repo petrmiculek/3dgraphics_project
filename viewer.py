@@ -12,6 +12,7 @@ from core import Shader, Viewer, Mesh, load, Node
 from texture import Texture, Textured, TexturedPlane
 from transform import translate, rotate, scale
 from skybox import Skybox
+from smoke import SmokeList, Smoke
 
 # -------------- main program and scene setup --------------------------------
 def main():
@@ -20,6 +21,7 @@ def main():
     shader = Shader("shaders/texture.vert", "shaders/texture.frag")
     shader_grass = Shader("shaders/texture_old.vert", "shaders/texture_old.frag")
     shader_skybox = Shader("shaders/skybox.vert", "shaders/skybox.frag")
+    shader_smoke = Shader("shaders/smoke.vert", "shaders/smoke.frag")
     light_dir = (0, -1, 0)
 
     ''' Command line-provided models '''
@@ -36,6 +38,11 @@ def main():
     ''' Bunny '''
     bunny = load("assets/bunny.obj", shader, light_dir=light_dir)[0]
     viewer.add(bunny)
+
+    '''Smoke'''
+    # smokeList = SmokeList(500, shader_smoke)
+    # TODO: How to update the smokelist particles with smokeList.update(0.05)?
+    # viewer.add(smokeList)
 
     ''' Skybox '''
     skybox = Skybox(shader_skybox)  # 'assets/skybox.jpg'

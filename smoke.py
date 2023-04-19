@@ -44,9 +44,9 @@ class SmokeList:
 
     def update(self, dt):
         # Updates all particles in the list. 
-        # Should be OK
+        # TODO: Should be OK, but updated values might not be expected.
         for particle in self.particleList:
-            particle.Life -= dt 
+            particle.Life -= (dt + random.uniform(0.0, 0.03)) 
             if (particle.Life > 0.0):
                 particle.Position -= particle.Velocity * dt
                 particle.Color.a -= dt * 2.5
