@@ -75,7 +75,7 @@ class Skybox(Node):
         self.vertex_array = VertexArray(shader_skybox, dict(position=vertices))
 
         # Get Uniform location of shader program
-        names = ['view', 'projection', 'model', 'blend_factor', 'skybox', 'skybox2', 'sky_color']
+        names = ['view', 'projection']  # , 'model'
         self.loc = {n: GL.glGetUniformLocation(self.shader_skybox.glid, n) for n in names}
 
     @staticmethod
@@ -104,12 +104,10 @@ class Skybox(Node):
         GL.glDepthMask(GL.GL_FALSE)
         GL.glUniformMatrix4fv(self.loc['view'], 1, True, other_uniforms['view'])
         GL.glUniformMatrix4fv(self.loc['projection'], 1, True, other_uniforms['projection'])
-        GL.glUniformMatrix4fv(self.loc['model'], 1, True, other_uniforms['model'])
         GL.glBindVertexArray(self.vertex_array.glid)
         GL.glEnableVertexAttribArray(0)
         GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, self.texture)
-        GL.glUniform1i(self.loc['skybox'], 0)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 36)
         GL.glDisableVertexAttribArray(0)
         GL.glDepthMask(GL.GL_TRUE)

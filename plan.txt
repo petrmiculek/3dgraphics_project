@@ -18,6 +18,6 @@ and computing their normals in the vertex shader
 
 np gradient
 
-skybox: 
+skybox: done
 lava:
 insert model into the scene:

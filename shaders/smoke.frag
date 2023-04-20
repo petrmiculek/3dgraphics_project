@@ -7,5 +7,5 @@ uniform sampler2D diffuse_map;
 
 void main()
 {
-    color = (texture(sprite, TexCoords) * ParticleColor);
-} 
+    color = (texture(diffuse_map, TexCoords) * ParticleColor);
+}

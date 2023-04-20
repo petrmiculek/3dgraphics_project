@@ -3,6 +3,7 @@ from itertools import cycle
 # external libraries
 import OpenGL.GL as GL  # standard Python OpenGL wrapper
 import glfw
+from OpenGL import GL as GL
 from PIL import Image  # load texture maps
 import numpy as np
 
@@ -56,7 +57,8 @@ class Textured:
             uniforms[name] = index
         self.drawable.draw(primitives=primitives, **uniforms)
 
-
+'''
+# DO NOT USE, THERE IS ONE IN objects.py
 class TexturedPlane(Textured):
     """ Simple first textured object """
 
@@ -87,3 +89,4 @@ class TexturedPlane(Textured):
         if key in (glfw.KEY_F6, glfw.KEY_F7):
             texture = Texture(self.file, self.wrap, *self.filter)
             self.textures.update(diffuse_map=texture)
+'''

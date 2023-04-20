@@ -186,6 +186,10 @@ class Node:
         for child in (c for c in self.children if hasattr(c, 'key_handler')):
             child.key_handler(key)
 
+    def transform(self, transform):
+        """ Apply transform to this node """
+        self.transform = transform @ self.transform
+
 
 # -------------- 3D resource loader -------------------------------------------
 MAX_BONES = 128
@@ -351,6 +355,7 @@ class Viewer(Node):
         # initialize trackball
         self.trackball = Trackball()
         self.mouse = (0, 0)
+        # self.c = 0
 
         # register event handlers
         glfw.set_key_callback(self.win, self.on_key)
@@ -378,6 +383,12 @@ class Viewer(Node):
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
             win_size = glfw.get_window_size(self.win)
+
+            # self.c += 1
+            # if (self.c % 1000) == 0:
+            #     self.c = 0
+            #     print(f"{self.trackball.distance=}")
+            #     print(f"{self.trackball.pos2d=}")
 
             # draw our scene objects
             cam_pos = np.linalg.inv(self.trackball.view_matrix())[:, 3]

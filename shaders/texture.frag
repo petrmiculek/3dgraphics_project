@@ -17,7 +17,7 @@ uniform vec3 k_a;
 uniform vec3 k_s;
 
 // shininess
-uniform float s; 
+uniform float s;
 
 // world camera position
 uniform vec3 w_camera_position;
@@ -27,8 +27,11 @@ float tmp;
 
 in vec3 w_position, w_normal;   // in world coodinates
 
+in float distance;
+
 
 void main() {
+    vec3 fog = vec3(0.5, 0.5, 0.7);
     // texture mapping
     vec4 tex = texture(diffuse_map, frag_tex_coords);
 
@@ -40,14 +43,25 @@ void main() {
 
     vec3 view = normalize(w_camera_position - w_position); // normalize the vector, not the positions
 
-    vec3 reflected3 = reflect(l, n);  
+    vec3 reflected3 = reflect(l, n);
     // dot(r, v)
     float dot_rv = max(0, dot(reflected3, view));
 
     // ks * dot(r, v)^s
     vec3 specular = k_s * pow(dot_rv, s);
-    
-    //  // dropped, replaced by the texture
+
     out_color = vec4(k_a + diffusion + specular, 0);
-    // out_color = tex;
+
+    // linearly blend color with fog color
+    float fog_threshold = 200;
+    // fog intensity scales linearly 0 to 1 with distance 0 to 200, capped at 1
+    float fog_intensity = min(1, distance / fog_threshold);
+    out_color = mix(out_color, vec4(fog, 0), fog_intensity);
+
+    // enable if you want only the textures without shading
+//    out_color = tex;
+
+//    out_color = vec4(w_normal, 0);
+    // enable for normals visualization
+
 }
