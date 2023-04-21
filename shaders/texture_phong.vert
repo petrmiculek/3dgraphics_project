@@ -27,5 +27,5 @@ void main() {
     w_position = (model * vec4(position, 1)).xyz;
     w_normal = (nit * normal);
 
-    distance = length(w_position);
+    distance = length(gl_Position);
 }

@@ -70,8 +70,8 @@ void main() {
     // linearly blend color with fog color
     //    /*
     float fog_min = 50;
-    float fog_max = 100;
-    float disappearing_threshold = 150;
+    float fog_max = 150;
+    float disappearing_threshold = 200;
     // fog
     float fog_intensity = min(1, max((distance - fog_min) / (fog_max - fog_min), 0));
     out_color = mix(out_color, vec4(fog, 1), fog_intensity);
@@ -86,3 +86,19 @@ void main() {
     // enable for normals visualization
     //    */
 }
+//
+//void mainy()
+//{
+//    vec4 worldPosition = model * vec4(aPos, 0.0);
+//    vec4 positionRelativeToCam = view * worldPosition;
+//
+//    TexCoords = aPos;
+//    vec4 pos = projection * positionRelativeToCam;
+//
+//    // Normalization
+//    gl_Position = pos.xyww;
+//
+//    float distance = length(positionRelativeToCam.xyz);
+//    visibility = exp(-pow((distance * density), gradient));
+//    visibility = clamp(visibility, 0.0, 1.0);
+//}

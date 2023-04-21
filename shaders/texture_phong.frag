@@ -53,8 +53,8 @@ void main() {
 //    /*
     // linearly blend color with fog color
     float fog_min = 50;
-    float fog_max = 100;
-    float disappearing_threshold = 150;
+    float fog_max = 150;
+    float disappearing_threshold = 200;
     // fog intensity scales linearly 0 to 1 with distance 0 to 200, capped at 1
     float fog_intensity = min(1, max((distance - fog_min) / (fog_max - fog_min), 0));
     out_color = mix(out_color, vec4(fog, 1), fog_intensity);
