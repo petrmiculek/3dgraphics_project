@@ -5,3 +5,6 @@ lab4/__pycache__
 *.pyc
 */*.pyc
 venv
+/assets/terrain.npz
+/.idea/*
+/unused/*

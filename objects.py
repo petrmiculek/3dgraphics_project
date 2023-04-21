@@ -50,7 +50,7 @@ class TexturedMesh(Textured):
     """ Textured object """
 
     def __init__(self, shader, mesh, tex_file, **uniforms):
-        self.wrap, self.filter = GL.GL_CLAMP_TO_EDGE, (GL.GL_NEAREST, GL.GL_NEAREST)
+        self.wrap, self.filter = GL.GL_REPEAT, (GL.GL_NEAREST, GL.GL_NEAREST)
         self.file = tex_file
 
         # setup plane mesh to be textured

@@ -14,13 +14,18 @@ import matplotlib.pyplot as plt
 def generate_perlin_noise_2d(shape, res):
     def smoothen(t):
         return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
-    x, y = shape[0], shape[1]
-    dx, dy = res[0] / x, res[1] / y
-    nx, ny = x // res[0], y // res[1]
+
+    # make shape a nearest power of 2
+    shape_orig = shape
+    shape = (2 ** int(np.ceil(np.log2(shape[0]))), 2 ** int(np.ceil(np.log2(shape[1]))))
+
     res_x, res_y = res
-    if x % res[0] != 0:
+    x, y = shape[0], shape[1]
+    dx, dy = res_x / x, res_y / y
+    nx, ny = x // res_x, y // res_y
+    if x % res_x != 0:
         nx += 1
-    if y % res[1] != 0:
+    if y % res_y != 0:
         ny += 1
 
     grid = np.mgrid[0:res_x:dx, 0:res_y:dy].transpose(1, 2, 0) % 1
@@ -40,18 +45,33 @@ def generate_perlin_noise_2d(shape, res):
     t = smoothen(grid)
     n0 = n00 * (1 - t[:, :, 0]) + t[:, :, 0] * n10
     n1 = n01 * (1 - t[:, :, 0]) + t[:, :, 0] * n11
-    return np.sqrt(2) * ((1 - t[:, :, 1]) * n0 + t[:, :, 1] * n1)
+    p = np.sqrt(2) * ((1 - t[:, :, 1]) * n0 + t[:, :, 1] * n1)[:shape_orig[0], :shape_orig[1]]
+    return p
 
 
-def generate_fractal_noise_2d(shape, res, octaves=1, persistence=0.5):
+def generate_fractal_noise_2d(shape, res, octaves=1, persistence=0.4, show=False):
     noise = np.zeros(shape)
     frequency = 1
     amplitude = 1
-    for _ in range(octaves):
+    plt.subplots(1, octaves + 1, figsize=((2 + octaves) * 5, 5))
+    for p in range(octaves):
         perlin = generate_perlin_noise_2d(shape, (frequency * res[0], frequency * res[1]))
         noise += amplitude * perlin
         frequency *= 2
         amplitude *= persistence
+        plt.subplot(1, octaves + 1, p + 1)
+        plt.imshow(perlin, cmap='gray')
+        plt.title(f'Octave {p + 1} {shape} {frequency * res[0]} {frequency * res[1]}')
+
+    plt.subplot(1, octaves + 1, octaves + 1)
+    plt.imshow(noise, cmap='gray')
+    plt.title('Sum')
+    if show:
+        plt.show()
+
+    # delete figure
+    plt.close()
+
     return noise
 
 
@@ -65,18 +85,31 @@ def generate_terrain(dim=100,
     terrain = np.zeros((dim, dim), dtype=np.float32)
 
     # perlin noise
-    terrain += noise_amplitude * generate_fractal_noise_2d(terrain.shape, res=(1, 1), octaves=4, persistence=0.4)
+    terrain += noise_amplitude * generate_fractal_noise_2d(terrain.shape, res=(1, 1),
+                                                           octaves=5, persistence=0.3)
+    lava_height, lava, terrain = generate_crater(crater_center, crater_height, crater_radius,
+                                                 hole_radius, terrain)
+
+    return terrain, lava, lava_height
+
+
+def generate_crater(crater_center, crater_height, crater_radius, hole_radius, terrain):
+    dim = terrain.shape[0]
+    r_big = int(crater_radius * 4)
 
     if crater_center is None:
         # choose best position for the crater - highest point in the terrain
         # we assume that there is only one such point
         crater_center = np.unravel_index(np.argmax(terrain), terrain.shape)
 
+    # if crater is too close to the edge, move it towards the center
+    crater_center = np.clip(crater_center, r_big, dim - r_big)
+    print(f'Crater center: {crater_center}')
     ''' Crater generation - initial version with for-loops (UNUSED) '''
     if False:
         # gaussian crater
-        for i in range(crater_center[0] - crater_radius * 3, crater_center[0] + crater_radius * 3):
-            for j in range(crater_center[1] - crater_radius * 3, crater_center[1] + crater_radius * 3):
+        for i in range(crater_center[0] - r_big, crater_center[0] + r_big):
+            for j in range(crater_center[1] - r_big, crater_center[1] + r_big):
                 if i < 0 or i >= dim or j < 0 or j >= dim:
                     continue
                 dist = np.sqrt((i - crater_center[0]) ** 2 + (j - crater_center[1]) ** 2)
@@ -90,35 +123,32 @@ def generate_terrain(dim=100,
                     terrain[i, j] = 0
 
     ''' Crater generation - vectorized version '''
-
     # precompute distances from crater center
-    r_big = crater_radius * 3
     x_low, x_high = crater_center[0] - r_big, crater_center[0] + r_big
     y_low, y_high = crater_center[1] - r_big, crater_center[1] + r_big
     dists = np.sqrt((np.arange(x_low, x_high)[:, None] - crater_center[0]) ** 2 + (
             np.arange(y_low, y_high)[None, :] - crater_center[1]) ** 2)
-
     # compute crater height
     crater = crater_height * np.exp(-dists / crater_radius)
-
     # shift to start at 0
     crater -= np.min(crater)
-
+    # between hole_radius and hole_radius + 5
+    crater_edge_idx = np.logical_and(dists > hole_radius, dists < hole_radius + 5)
+    crater_inside = np.argwhere(
+        dists < hole_radius)  # needs clamping of the range to fit in the ground, assume this is not a problem for now
     # hole in crater
     crater[dists < hole_radius] = 0
-
-    # cut crater to fit in the ground
-    max_x = min(x_high, dim)
-    max_y = min(y_high, dim)
-    crater = crater[:max_x - x_low, :max_y - y_low]
-
-    # place crater values in the ground at crater_center
+    # terrain[min_x:max_x, min_y:max_y] += crater
     terrain[x_low:x_high, y_low:y_high] += crater
-
     # shift ground to positive values
-    terrain += np.abs(np.min(terrain))
-
-    return terrain
+    shift = np.min(terrain)
+    terrain += shift
+    # crater properties are calculated based on the terrain with the crater placed
+    crater_placed = terrain[x_low:x_high, y_low:y_high]
+    crater_edge_placed = crater_placed[crater_edge_idx]
+    lava = crater_inside + np.array([x_low, y_low])
+    lava_height = np.mean(crater_edge_placed) - 0.5  # safety margin
+    return lava_height, lava, terrain
 
 
 def save_i(path, data=None, overwrite=False, **data_dict):
@@ -154,48 +184,32 @@ def plot_terrain(ground):
 
 if __name__ == "__main__":
     # set manual seed - always makes the same crater
-    np.random.seed(0)
+    np.random.seed(98)
 
     show_plots = False
     if not show_plots:
         plt.ioff()
         # plt.ion()
 
-    # plot craterop
-    dim = 500
-    terrain = generate_terrain(dim=dim,
-                               crater_height=80,
-                               crater_radius=80,
-                               noise_amplitude=40)
-    if show_plots:
-        print('Plotting terrain... (close plot to continue)')
-        plot_terrain(terrain)
-
-    # save crater .npy
-    # path_grid = 'assets/crater_grid'
-    # save_i(path_grid, grid=terrain)
+    ''' Terrain generation '''
+    dim = 300
+    terrain, crater_inside, crater_edge_height = generate_terrain(dim=dim,
+                                                                  crater_height=40,
+                                                                  hole_radius=10,
+                                                                  crater_radius=30,
+                                                                  noise_amplitude=70)
 
     # compute normals
     grad = np.gradient(terrain)
     grad_x, grad_z = grad
-    # normals = np.cross(grad_x, grad_y)
-    if show_plots:
-        plt.imshow(grad_x)
-        plt.title('grad_x')
-        plt.show()
-        plt.imshow(grad_z)
-        plt.title('grad_y')
-        plt.show()
 
     # normals
     grad_y = np.ones_like(grad_x)
     normals_grid = np.stack((grad_x, grad_y, grad_z), axis=2)
     normals_grid = normals_grid / np.linalg.norm(normals_grid, axis=2)[:, :, None]
     normals_grid = normals_grid[:dim - 1, :dim - 1, :]
-    # normals_seq = normals.reshape(-1, 3)
-    # normals_seq_seq = normals.reshape(-1)
 
-    # convert crater to a mesh for openGL
+    ''' OpenGL mesh '''
     # indices = []  # unused
     normals = []
     vertices = []
@@ -248,10 +262,33 @@ if __name__ == "__main__":
             # x-component = grad_x[x, y]
             # z-component = grad_y[x, y]
 
+    ''' Lava '''
+
+    vertices_lava = []
+    normals_lava = []
+
+    for x, z in crater_inside:
+        # crater_inside has [x, z], crater_edge_height has [y]
+        v1 = np.array([x, crater_edge_height, z])
+        v2 = np.array([x + 1, crater_edge_height, z])
+        v3 = np.array([x, crater_edge_height, z + 1])
+        v4 = np.array([x + 1, crater_edge_height, z + 1])
+
+        vertices_lava.extend([v1, v3, v2] + [v2, v3, v4])
+
+        n1 = np.array([0, 1, 0])
+        # normals are the same for all vertices
+        normals_lava.extend([n1, n1, n1] + [n1, n1, n1])
+
     ''' Save all terrain data to npz '''
     vertices = np.array(vertices, dtype=np.float32)
     normals = np.array(normals, dtype=np.float32)
+
+    vertices_lava = np.array(vertices_lava, dtype=np.float32)
+    normals_lava = np.array(normals_lava, dtype=np.float32)
+
     save_i('assets/terrain', overwrite=True,
-           vertices=vertices, normals=normals, grid=terrain)
+           ground_vertices=vertices, ground_normals=normals, ground_grid=terrain,
+           lava_vertices=vertices_lava, lava_normals=normals_lava)
 
     print('Done')

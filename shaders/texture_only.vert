@@ -15,6 +15,6 @@ out vec2 frag_tex_coords;
 
 void main() {
     gl_Position = projection * view * model * vec4(position, 1);  // aPos
-    frag_tex_coords = position.xy;
+    frag_tex_coords = (model * vec4(position, 1)).xz;  // texture projected from above, works for grass (not for bunny)
     // TexCoords = aPos;
 }

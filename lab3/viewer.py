@@ -57,46 +57,54 @@ class Cylinder(Node):
 def main():
     viewer = Viewer()
     shader = Shader("color.vert", "color.frag")
+
+    axis = Axis(shader)
+
     scaling = 0.2
-    t_arm = translate(y=+0.6) @ scale(x=0.1, y=1, z=0.1) @ scale(scaling)
-    t_forearm = translate(y=+1) @ scale(x=0.2, y=1, z=0.2) @ scale(scaling)
+    t_arm = translate(y=+0.4) @ scale(x=0.2, y=1, z=0.2) @ scale(scaling)
+    t_forearm = translate(y=+0.8) @ scale(x=0.1, y=1, z=0.1) @ scale(scaling)
 
-    # ---- let's make our shapes ---------------------------------------
-    # base_shape = ...
-    # arm_shape = ...
-    # forearm_shape = ...
-    # ---- let's make our shapes ---------------------------------------
-    # think about it: we can re-use the same cylinder instance!
-    cylinder = Cylinder(shader)
-
-    # make a thin cylinder
-    forearm_shape = Node(transform=t_forearm)
-    forearm_shape.add(cylinder)  # shape of forearm
-
-    # make a thin cylinder
-    arm_shape = Node(children=[forearm_shape], transform=t_arm)
-    arm_shape.add(cylinder)  # shape of arm
-
-    # make a flat cylinder
-    base_shape = Node(children=[arm_shape], transform=scale(scaling))
-    base_shape.add(cylinder)  # shape of robot base
-
-    # ---- construct our robot arm hierarchy ---------------------------
+    cylinder_obj = Cylinder(shader)
     theta = 45.0  # base horizontal rotation angle
     phi1 = 45.0  # arm angle
     phi2 = 20.0  # forearm angle
-    axis = Axis(shader)
-    transform_forearm = Node(transform=translate(x=0.25) @ rotate((0, 0, 1), phi2))  #
-    transform_forearm.add(forearm_shape)
+    if True:
 
-    transform_arm = Node(transform=rotate((0, 0, 1), phi1))  #
-    transform_arm.add(arm_shape, transform_forearm)
+        # make a thin cylinder
+        forearm_shape = Node([cylinder_obj], transform=t_forearm)
+        # forearm_shape.add()  # shape of forearm
 
-    transform_base = Node(transform=rotate((0, 1, 0), theta))
-    transform_base.add(base_shape, transform_arm)
+        # make a thin cylinder
+        arm_shape = Node(children=[forearm_shape, cylinder_obj], transform=t_arm)
+        # arm_shape.add(cylinder_obj)  # shape of arm
 
-    viewer.add(transform_base)
-    viewer.add(axis)
+        # make a flat cylinder
+        base_shape = Node(children=[arm_shape, cylinder_obj], transform=scale(scaling))
+        # base_shape.add(cylinder_obj)  # shape of robot base
+
+        transform_forearm = Node(transform=translate(x=0.25) @ rotate((0, 0, 1), phi2))  #
+        transform_forearm.add(forearm_shape)
+
+        transform_arm = Node(transform=rotate((0, 0, 1), phi1))  #
+        transform_arm.add(arm_shape, transform_forearm)
+
+        transform_base = Node(transform=rotate((0, 1, 0), theta))
+        transform_base.add(base_shape, transform_arm)
+
+        viewer.add(transform_base)
+        viewer.add(axis)
+
+    else:
+        cylinder = Node([cylinder_obj])
+        cylinder.transform = cylinder.transform @ scale(0.2, 1, 0.2)
+
+        # 2 branches coming out of the top of the cylinder
+        # thinner, rotated, translated to begin at the top of the trunk
+        t_b11 = rotate(angle=30, axis=(1, 0, 0))  # @ translate(0, 1, 0) # @ scale(0.5, 1, 0.5)
+        t_b12 = rotate(angle=-30, axis=(1, 0, 0))  # @ translate(0, 1, 0) # @ scale(0.5, 1, 0.5)
+        cylinder.add(Node([cylinder_obj], transform=t_b11))
+        cylinder.add(Node([cylinder_obj], transform=t_b12))
+        viewer.add(cylinder)
 
     viewer.run()
 

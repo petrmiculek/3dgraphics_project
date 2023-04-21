@@ -166,10 +166,11 @@ class Mesh:
 # ------------  Node is the core drawable for hierarchical scene graphs -------
 class Node:
     """ Scene graph transform and parameter broadcast node """
-    def __init__(self, children=(), transform=identity()):
+    def __init__(self, children=(), transform=identity(), **uniforms):
         self.transform = transform
         self.world_transform = identity()
         self.children = list(iter(children))
+        self.uniforms = uniforms
 
     def add(self, *drawables):
         """ Add drawables to this node, simply updating children list """
@@ -179,14 +180,15 @@ class Node:
         """ Recursive draw, passing down updated model matrix. """
         self.world_transform = model @ self.transform
         for child in self.children:
-            child.draw(model=self.world_transform, **other_uniforms)
+            child.draw(model=self.world_transform, **{**self.uniforms, **other_uniforms})
+            # note: order of applying dictionary union allows for overriding (other > self)
 
     def key_handler(self, key):
         """ Dispatch keyboard events to children with key handler """
         for child in (c for c in self.children if hasattr(c, 'key_handler')):
             child.key_handler(key)
 
-    def transform(self, transform):
+    def apply(self, transform):
         """ Apply transform to this node """
         self.transform = transform @ self.transform
 
@@ -347,7 +349,7 @@ class Viewer(Node):
         glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
         glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
         glfw.window_hint(glfw.RESIZABLE, True)
-        self.win = glfw.create_window(width, height, 'Viewer', None, None)
+        self.win = glfw.create_window(width, height, 'Vesuv', None, None)
 
         # make win's OpenGL context current; no OpenGL calls can happen before
         glfw.make_context_current(self.win)
@@ -372,6 +374,8 @@ class Viewer(Node):
         GL.glClearColor(0.1, 0.1, 0.1, 0.1)
         GL.glEnable(GL.GL_CULL_FACE)   # backface culling enabled (TP2)
         GL.glEnable(GL.GL_DEPTH_TEST)  # depth test now enabled (TP2)
+        GL.glEnable(GL.GL_BLEND)       # blending enabled
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
         # cyclic iterator to easily toggle polygon rendering modes
         self.fill_modes = cycle([GL.GL_LINE, GL.GL_POINT, GL.GL_FILL])
