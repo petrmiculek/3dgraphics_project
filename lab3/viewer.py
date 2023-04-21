@@ -43,6 +43,13 @@ class Triangle(Mesh):
             self.color = (0, 0, 0)
 
 
+def transform_axis(ax, t):
+    """
+    Apply a transformation to an axis.
+    :param ax: axis to transform [3]
+    :param t: transformation matrix [4x4]
+    """
+    return np.around(np.array([np.r_[ax, [0]]]) @ t, 4)[0, :3]
 # -------------- main program and scene setup --------------------------------
 
 

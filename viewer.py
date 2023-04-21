@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 # standard library imports
 import sys
+from itertools import cycle
 # external libraries
 import numpy as np  # all matrix manipulations & OpenGL args
 
+# import lab3.cactus
 # local imports
 from core import Shader, Viewer, load, Node
 from objects import TexturedMesh, Axis, TexturedPlaneShaded
-from transform import translate, scale, rotate
+from transform import translate, scale, rotate, identity
+from cactus import CactusBuilder
 from skybox import Skybox
 
 
@@ -23,7 +26,7 @@ def main():
     shader_skybox = Shader("shaders/skybox.vert", "shaders/skybox.frag")
     # shader_smoke = Shader("shaders/smoke.vert", "shaders/smoke.frag")
     light_dir = (0, -1, 0)
-    scene = Node(light_dir=light_dir, k_a=[.2]*3)  # , k_s=[.2]*3, s=5
+    scene = Node(light_dir=light_dir, k_a=[.4]*3)  #, k_s=[.2]*3 , s=5
     viewer.add(scene)
 
     ''' Command line-provided models '''
@@ -68,7 +71,7 @@ def main():
     terrain_shift = translate(-shift_x, -height_at_center, -shift_z)
 
     # Add terrain to the scene
-    terrain_grass = TexturedMesh(shader_terrain, terrain_vertices, "assets/grass.png",
+    terrain_grass = TexturedMesh(shader_terrain, terrain_vertices, "assets/sand.png",
                                  normals=terrain_normals,)  # k_s=0,  k_d=(0.5, 0.5, 0.5)
     terrain_node = Node([terrain_grass], transform=terrain_shift)  # shift terrain to be centered
     scene.add(terrain_node)
@@ -151,6 +154,25 @@ def main():
 
         scene.add(cylinder)
 
+    angles = [
+        [[], [0, 180], [0], [90]],  # 1
+        [[0]],  # 2
+        [[]]  # 3
+    ]
+    ''' Cactus '''
+    # offset = np.array([-2, -1])
+    # offset_sum = np.array([8, -4])
+
+    cb = CactusBuilder(shader)
+
+    cacti_pos = np.random.randint(x // 4, 3 * x // 4, size=(20, 2)) - (shift_x, shift_z)
+    for pos, b1_angles in zip(cacti_pos, cycle(angles[0])):
+        cact = cb.cactus([b1_angles, angles[1][0], angles[2][0]])
+        # offset_sum += offset
+        # cact.apply(offset_sum)
+        cact.apply(rotate(axis=(0, 1, 0), angle=pos[0]))
+        place(cact, pos)
+        scene.add(cact)
 
     # start rendering loop
     viewer.run()
@@ -163,12 +185,12 @@ if __name__ == '__main__':
     - terrain:
         - generation can run on the fly
         - make into a class
-        - grass texture mapping is wrong
-        - remove regular grid artifacts
+        - grass texture mapping is wrong  #DONE#
+        - remove regular grid artifacts  #DONE#
         
     - make fog move together with the camera (or some character?)
         
-    - volcano needs an inside wall - there is one, with only a few triangles
+    - volcano needs an inside wall - #DONE# there is one, with only a few triangles
     - what is our Team number? mentioned here: https://franco.gitlabpages.inria.fr/3dgraphics/project.html
     - print list of controls at the start of the program
     """

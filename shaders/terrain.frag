@@ -57,7 +57,7 @@ void main() {
     float dot_rv = max(0, dot(reflected3, view));
     // Fresnel effect
     // = fix for black areas
-        float fresnel = pow(1.0 - dot_rv, 5.0);
+    float fresnel = pow(1.0 - dot_rv, 5.0);
     float mix_fresnel = 0.01; // any nonzero value behaves just the same
 //        dot_rv = mix(dot_rv, fresnel, mix_fresnel);
     dot_rv = dot_rv * (1 - mix_fresnel) + fresnel * (mix_fresnel);

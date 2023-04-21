@@ -4,22 +4,6 @@ from core import Node, load
 from transform import rotate, translate, scale
 
 
-class Cylinder(Node):
-    """ Cylinder node loading from an obj file. """
-
-    def __init__(self, shader, **uniforms):
-        super().__init__(**uniforms)
-        self.add(*load('cylinder.obj', shader))
-
-
-class Sphere(Node):
-    """ Sphere node loading from an obj file. """
-
-    def __init__(self, shader, **uniforms):
-        super().__init__(**uniforms)
-        self.add(*load('sphere.obj', shader))
-
-
 class CactusBuilder(Node):
     c = None
     s = None
@@ -48,19 +32,22 @@ class CactusBuilder(Node):
     around = np.array([0, 1, 0])  # rotation that separates branches
     lie = rotate(vh, vh_angle)
     stand = rotate(vh, -vh_angle)
+    shader = None
 
     def __init__(self, shader, **uniforms):
         # cylinders dimensions
         super().__init__(**uniforms)
 
         # self.coefs = get_coefs()
+        self.__class__.shader = shader
 
         ''' Base Cylinder '''
-        self.__class__.c = Cylinder(shader)
-        self.__class__.s = Sphere(shader)
 
     @classmethod
     def cactus(cls, angles, rand=True, trunk_height=1.4):
+        if cls.c is None or cls.s is None:
+            cls.c = CactusCylinder(cls.shader)
+            cls.s = CactusSphere(cls.shader)
         """ Generate cactus as a hierarchy of nodes. """
         ''' Branch 1 - sidewards '''
         b1s = cls.branch_level(angles, cls.coefs, 0, rand)
@@ -97,3 +84,22 @@ class CactusBuilder(Node):
             branches.append(node)
 
         return branches
+
+    def __del__(self):
+        del self.__class__.c, self.__class__.s
+
+
+class CactusCylinder(Node):
+    """ Cylinder node loading from an obj file. """
+
+    def __init__(self, shader, **uniforms):
+        super().__init__(**uniforms)
+        self.add(*load('assets/cylinder.obj', shader, tex_file='assets/cactus.png'))
+
+
+class CactusSphere(Node):
+    """ Sphere node loading from an obj file. """
+
+    def __init__(self, shader, **uniforms):
+        super().__init__(**uniforms)
+        self.add(*load('assets/sphere.obj', shader, tex_file='assets/cactus.png', k_a=[.2]*3, k_s=[.1]*3))

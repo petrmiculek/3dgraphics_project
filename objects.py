@@ -65,10 +65,10 @@ class TexturedMesh(Textured):
 class Axis(Mesh):
     """ Axis object useful for debugging coordinate frames """
 
-    def __init__(self, shader):
+    def __init__(self, shader, **uniforms):
         pos = ((0, 0, 0), (1, 0, 0), (0, 0, 0), (0, 1, 0), (0, 0, 0), (0, 0, 1))
         col = ((1, 0, 0), (1, 0, 0), (0, 1, 0), (0, 1, 0), (0, 0, 1), (0, 0, 1))
-        super().__init__(shader, attributes=dict(position=pos, color=col))
+        super().__init__(shader, attributes=dict(position=pos, color=col), **uniforms)
 
     def draw(self, primitives=GL.GL_LINES, **uniforms):
         super().draw(primitives=primitives, **uniforms)

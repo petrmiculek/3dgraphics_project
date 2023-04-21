@@ -1,7 +1,7 @@
 # Blender v2.63 (sub 0) OBJ File: 'sphere.blend'
 # www.blender.org
 mtllib sphere.mtl
-o CactusSphere
+o Sphere
 v -0.195090 0.980785 0.000000
 v -0.382683 0.923880 0.000000
 v -0.555570 0.831470 0.000000
@@ -484,7 +484,7 @@ v -0.693520 -0.707107 0.137950
 v -0.544895 -0.831470 0.108386
 v -0.375330 -0.923880 0.074658
 v -0.191341 -0.980785 0.038060
-usemtl
+usemtl sphere
 s 1
 f 26 27 12 11
 f 20 21 6 5

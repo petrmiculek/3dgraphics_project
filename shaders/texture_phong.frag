@@ -33,17 +33,20 @@ void main() {
     vec4 tex = texture(diffuse_map, frag_tex_coords);
     // shading
     vec3 l = normalize(light_dir); // world light direction normalized
+    vec3 n = normalize(w_normal); // world normal normalized
 
     vec3 view = normalize(w_camera_position - w_position);
-    vec3 reflected3 = reflect(l, w_normal);
+    vec3 reflected3 = reflect(l, n);
     // dot(r, v)
     float dot_rv = max(0, dot(reflected3, view));
-//    float fresnel = pow(1.0 - dot_rv, 5.0);
+    float fresnel = pow(1.0 - dot_rv, 5.0);
 //    dot_rv = mix(dot_rv, fresnel, 0.04);
+    float mix_fresnel = 0.5;
+    dot_rv = dot_rv * (1 - mix_fresnel) + fresnel * (mix_fresnel);
 
     // ks * dot(r, v)^s
     vec3 specular = tex.xyz * k_s * pow(dot_rv, s);
-    vec3 diffusion = tex.xyz * max(0, dot(w_normal, -l)) * (1 - k_a - 0.15);
+    vec3 diffusion = tex.xyz * max(0, dot(n, -l)) * (1 - k_a - 0.15);
     vec3 ambient = tex.xyz * k_a;
 
     out_color = vec4(specular + diffusion + ambient, 1);  //
