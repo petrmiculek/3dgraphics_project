@@ -3,24 +3,23 @@
 Python OpenGL practical application.
 """
 
-import sys  # for system arguments
-
 # External, non built-in modules
 import OpenGL.GL as GL  # standard Python OpenGL wrapper
 import numpy as np  # all matrix manipulations & OpenGL args
 import glfw  # lean window system wrapper for OpenGL
 
 from core import Shader, Mesh, Viewer, Node, load
-from transform import translate, identity, rotate, scale
+from cactus import CactusBuilder
+from transform import translate, identity
 
 
 class Axis(Mesh):
     """ Axis object useful for debugging coordinate frames """
 
-    def __init__(self, shader):
+    def __init__(self, shader, **uniforms):
         pos = ((0, 0, 0), (1, 0, 0), (0, 0, 0), (0, 1, 0), (0, 0, 0), (0, 0, 1))
         col = ((1, 0, 0), (1, 0, 0), (0, 1, 0), (0, 1, 0), (0, 0, 1), (0, 0, 1))
-        super().__init__(shader, attributes=dict(position=pos, color=col))
+        super().__init__(shader, attributes=dict(position=pos, normal=col), **uniforms)
 
     def draw(self, primitives=GL.GL_LINES, **uniforms):
         super().draw(primitives=primitives, **uniforms)
@@ -44,72 +43,33 @@ class Triangle(Mesh):
             self.color = (0, 0, 0)
 
 
-class Cylinder(Node):
-    """ Very simple cylinder based on provided load function """
-
-    def __init__(self, shader):
-        super().__init__()
-        self.add(*load('cylinder.obj', shader))  # just load cylinder from file
-
-
 # -------------- main program and scene setup --------------------------------
+
 
 def main():
     viewer = Viewer()
+    scene = Node([], alpha=0.4)
+    viewer.add(scene)
     shader = Shader("color.vert", "color.frag")
 
-    axis = Axis(shader)
+    angles = [
+        [[], [0, 180], [0], [90]],  # 1
+        [[0]],  # 2
+        [[]]  # 3
+    ]
+    ''' Cactus '''
+    offset = translate(x=-2, z=-1)
+    offset_sum = identity() + translate(x=8, z=-4)
 
-    scaling = 0.2
-    t_arm = translate(y=+0.4) @ scale(x=0.2, y=1, z=0.2) @ scale(scaling)
-    t_forearm = translate(y=+0.8) @ scale(x=0.1, y=1, z=0.1) @ scale(scaling)
+    cb = CactusBuilder(shader)
 
-    cylinder_obj = Cylinder(shader)
-    theta = 45.0  # base horizontal rotation angle
-    phi1 = 45.0  # arm angle
-    phi2 = 20.0  # forearm angle
-    if True:
-
-        # make a thin cylinder
-        forearm_shape = Node([cylinder_obj], transform=t_forearm)
-        # forearm_shape.add()  # shape of forearm
-
-        # make a thin cylinder
-        arm_shape = Node(children=[forearm_shape, cylinder_obj], transform=t_arm)
-        # arm_shape.add(cylinder_obj)  # shape of arm
-
-        # make a flat cylinder
-        base_shape = Node(children=[arm_shape, cylinder_obj], transform=scale(scaling))
-        # base_shape.add(cylinder_obj)  # shape of robot base
-
-        transform_forearm = Node(transform=translate(x=0.25) @ rotate((0, 0, 1), phi2))  #
-        transform_forearm.add(forearm_shape)
-
-        transform_arm = Node(transform=rotate((0, 0, 1), phi1))  #
-        transform_arm.add(arm_shape, transform_forearm)
-
-        transform_base = Node(transform=rotate((0, 1, 0), theta))
-        transform_base.add(base_shape, transform_arm)
-
-        viewer.add(transform_base)
-        viewer.add(axis)
-
-    else:
-        cylinder = Node([cylinder_obj])
-        cylinder.transform = cylinder.transform @ scale(0.2, 1, 0.2)
-
-        # 2 branches coming out of the top of the cylinder
-        # thinner, rotated, translated to begin at the top of the trunk
-        t_b11 = rotate(angle=30, axis=(1, 0, 0))  # @ translate(0, 1, 0) # @ scale(0.5, 1, 0.5)
-        t_b12 = rotate(angle=-30, axis=(1, 0, 0))  # @ translate(0, 1, 0) # @ scale(0.5, 1, 0.5)
-        cylinder.add(Node([cylinder_obj], transform=t_b11))
-        cylinder.add(Node([cylinder_obj], transform=t_b12))
-        viewer.add(cylinder)
+    for b1_angles in angles[0]:
+        cact = cb.cactus([b1_angles, angles[1][0], angles[2][0]])
+        offset_sum = offset_sum @ offset
+        cact.apply(offset_sum)
+        scene.add(cact)
 
     viewer.run()
-
-    # this still needs animation from:
-    # https://franco.gitlabpages.inria.fr/3dgraphics/practical3.html#optional-exercise-keyboard-control
 
 
 if __name__ == '__main__':
