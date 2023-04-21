@@ -10,7 +10,7 @@ import numpy as np                  # all matrix manipulations & OpenGL args
 import assimpcy                     # 3D resource loader
 
 # our transform functions
-from transform import Trackball, identity
+from transform import Trackball, identity, rotate
 
 # initialize and automatically terminate glfw on exit
 glfw.init()
@@ -342,6 +342,7 @@ class Viewer(Node):
 
     def __init__(self, width=640, height=480):
         super().__init__()
+        self.cacti_list = []
 
         # version hints: create GL window with >= OpenGL 3.3 and core profile
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -418,6 +419,9 @@ class Viewer(Node):
                 GL.glPolygonMode(GL.GL_FRONT_AND_BACK, next(self.fill_modes))
             if key == glfw.KEY_SPACE:
                 glfw.set_time(0.0)
+            if key == glfw.KEY_S:
+                for c in self.cacti_list:
+                    c.apply(rotate((0, 1, 0), 5))
 
             # call Node.key_handler which calls key_handlers for all drawables
             self.key_handler(key)

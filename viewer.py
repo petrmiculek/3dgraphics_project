@@ -16,6 +16,9 @@ from skybox import Skybox
 
 # -------------- main program and scene setup --------------------------------
 def main():
+    print("The controls are the same as in labs: use left and right mouse buttons to rotate and move the camera, respectively.")
+    print("Use S to start a cactus-tornado.")
+
     """ create a window, add scene objects, then run rendering loop """
     viewer = Viewer()
     shader_axis = Shader("shaders/axis.vert", "shaders/axis.frag")
@@ -164,7 +167,7 @@ def main():
     # offset_sum = np.array([8, -4])
 
     cb = CactusBuilder(shader)
-
+    cacti_list = []
     cacti_pos = np.random.randint(x // 4, 3 * x // 4, size=(20, 2)) - (shift_x, shift_z)
     for pos, b1_angles in zip(cacti_pos, cycle(angles[0])):
         cact = cb.cactus([b1_angles, angles[1][0], angles[2][0]])
@@ -172,8 +175,10 @@ def main():
         # cact.apply(offset_sum)
         cact.apply(rotate(axis=(0, 1, 0), angle=pos[0]))
         place(cact, pos)
+        cacti_list.append(cact)
         scene.add(cact)
 
+    viewer.cacti_list = cacti_list
     # start rendering loop
     viewer.run()
 
@@ -188,11 +193,11 @@ if __name__ == '__main__':
         - grass texture mapping is wrong  #DONE#
         - remove regular grid artifacts  #DONE#
         
-    - make fog move together with the camera (or some character?)
+    - make fog move together with the camera (or some character?)  #DONE#
         
     - volcano needs an inside wall - #DONE# there is one, with only a few triangles
     - what is our Team number? mentioned here: https://franco.gitlabpages.inria.fr/3dgraphics/project.html
-    - print list of controls at the start of the program
+    - print list of controls at the start of the program  
     """
 
 
