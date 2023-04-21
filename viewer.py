@@ -20,7 +20,7 @@ def main():
     viewer = Viewer()
     shader_axis = Shader("shaders/axis.vert", "shaders/axis.frag")
     shader = Shader("shaders/texture_phong.vert", "shaders/texture_phong.frag")
-    shader_lava = Shader("shaders/terrain.vert", "shaders/texture_phong.frag")
+    shader_lava = Shader("shaders/lava.vert", "shaders/texture_phong.frag")
     # shader_grass = Shader("shaders/texture_only.vert", "shaders/texture_only.frag")
     shader_terrain = Shader("shaders/terrain.vert", "shaders/terrain.frag")
     shader_skybox = Shader("shaders/skybox.vert", "shaders/skybox.frag")

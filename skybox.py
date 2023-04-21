@@ -6,6 +6,11 @@ from core import VertexArray, Node
 
 # todo redo with indices
 
+"""
+Inspired by:
+https://learnopengl.com/Advanced-OpenGL/Cubemaps
+"""
+
 # empty lines separate triangles of the cube
 vertices = np.array((
     (-1.0, 1.0, -1.0),
